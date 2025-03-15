@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Drawing</title>
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</head>
+
+<body>
+    <h2>Draw and Predict</h2>
+    <canvas id="canvas" width="280" height="280" style="border:1px solid #000;"></canvas>
+    <button onclick="clearCanvas()">Clear</button>
+    <button onclick="sendData()">Predict</button>
+    <h3>Prediction: <span id="result"></span></h3>
+</body>
+
+</html>
