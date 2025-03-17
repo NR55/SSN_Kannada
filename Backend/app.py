@@ -10,7 +10,7 @@ app = Flask(__name__, static_folder="static", template_folder="templates")
 CORS(app)
 
 model = tf.keras.models.load_model("./ml_model/cnn_model.h5")
-label_classes = np.load("./ml_model/label_classes.npy")
+label_classes = np.load("./ml_model/kannada_letters.npy")
 
 def preprocess_image(image_data):
     """ Convert image to grayscale, invert colors, and resize for model input. """
