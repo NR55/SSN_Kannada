@@ -70,7 +70,7 @@ export default function Learn() {
           strokeColor="black"
           width={300}
           height={300}
-          className="border-4 border-gray-600 bg-white relative"
+          className="border-4 border-gray-600 bg-white relative opacity-50"
         />
       </div>
 
