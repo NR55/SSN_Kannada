@@ -9,7 +9,7 @@ import base64
 app = Flask(__name__, static_folder="static", template_folder="templates")
 CORS(app)
 
-model = tf.keras.models.load_model("./ml_model/cnn_model.h5")
+model = tf.keras.models.load_model("./ml_model/cnn_model_early_stopping.h5")
 label_classes = np.load("./ml_model/kannada_letters.npy")
 
 def preprocess_image(image_data):
