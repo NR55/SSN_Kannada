@@ -83,10 +83,10 @@ export default function Learn() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-blue-900 p-6">
+    <div className="min-h-screen bg-gradient-to-b from-black via-purple-900 to-black text-white p-6">
       <div className="max-w-6xl mx-auto">
         <header className="text-center mb-8">
-          <h1 className="text-4xl font-extrabold text-blue-300 mb-2">
+          <h1 className="text-4xl font-extrabold text-white-300 mb-2">
             ✏️ Kannada Letter Tracing
           </h1>
           <p className="text-gray-300">Learn to write Kannada characters by tracing them</p>
@@ -115,7 +115,7 @@ export default function Learn() {
           <div className="bg-gray-900 rounded-xl shadow-xl p-6 flex flex-col items-center border border-blue-800 w-full md:w-96">
             <h2 className="text-gray-300 text-xl mb-4">Original Letter</h2>
             <div className="h-80 w-80 flex items-center justify-center border-2 border-blue-800 rounded-lg bg-gray-900">
-              <span className="text-[160px] font-bold text-blue-400">
+              <span className="text-[160px] font-bold text-white-400">
                 {currentLetter}
               </span>
             </div>
@@ -177,7 +177,7 @@ export default function Learn() {
                 ? "bg-green-900 border-l-4 border-green-500 text-green-200"
                 : feedback.includes("❌")
                   ? "bg-red-900 border-l-4 border-red-500 text-red-200"
-                  : "bg-blue-900 border-l-4 border-blue-500 text-blue-200"
+                  : "bg-blue-900 border-l-4 border-blue-500 text-white-200"
               }`}
           >
             <p className="text-xl font-medium">{feedback}</p>

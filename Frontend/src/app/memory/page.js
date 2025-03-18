@@ -107,8 +107,8 @@ export default function MemoryGame() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-gray-900 text-white">
-      <h1 className="text-4xl font-extrabold mb-4 text-yellow-400">Kannada Memory Game</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-gradient-to-b from-black via-purple-900 to-black text-white">
+      <h1 className="text-4xl font-extrabold mb-4 text-white-400">Kannada Memory Game</h1>
       <p className="text-lg mb-4">Moves: {moves} | Score: {score} | Time: {timerRunning ? `${elapsedTime}s` : "Stopped"}</p>
 
       <div className="grid grid-cols-4 gap-4">
@@ -116,7 +116,7 @@ export default function MemoryGame() {
           <div
             key={index}
             className={`w-20 h-20 flex items-center justify-center border-4 rounded-lg text-3xl font-bold cursor-pointer transition-all duration-300 
-              ${tile.revealed || tile.matched ? "bg-green-500 text-black border-green-700" : "bg-red-600 text-white border-red-800"}`}
+              ${tile.revealed || tile.matched ? "bg-green-500 text-black border-green-700" : "bg-grey-600 text-white border-grey-800"}`}
             onClick={() => handleTileClick(index)}
           >
             {tile.revealed || tile.matched ? tile.letter : "?"}

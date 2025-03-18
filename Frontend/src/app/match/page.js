@@ -105,7 +105,7 @@ export default function MatchGame() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-gray-900 text-white">
+    <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-gradient-to-b from-black via-purple-900 to-black text-white">
       <h1 className="text-3xl font-bold mb-6">Match Kannada Letters with Pronunciation</h1>
 
       <div className="grid grid-cols-2 gap-16">
@@ -135,7 +135,7 @@ export default function MatchGame() {
                 {matches[pronunciation] ? <span className="text-2xl">{matches[pronunciation]}</span> : null}{results[pronunciation] || ""}
               </div>
 
-              <div className="p-4 text-xl bg-teal-500 w-24 text-center rounded-lg border-2 border-white shadow-lg">
+              <div className="p-4 text-xl bg-black w-24 text-center rounded-lg border-2 border-white shadow-lg">
                 {pronunciation} 
               </div>
             </div>

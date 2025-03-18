@@ -489,13 +489,13 @@ export default function HomePage() {
             <div 
               key={i}
               className="absolute w-24 h-24 bg-white/5 rounded-full"
-              style={{
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                transform: `scale(${Math.random() * 3 + 0.5})`,
-                animationDuration: `${Math.random() * 20 + 10}s`,
-                animationDelay: `${Math.random() * 5}s`
-              }}
+              // style={{
+              //   top: `${Math.random() * 100}%`,
+              //   left: `${Math.random() * 100}%`,
+              //   transform: `scale(${Math.random() * 3 + 0.5})`,
+              //   animationDuration: `${Math.random() * 20 + 10}s`,
+              //   animationDelay: `${Math.random() * 5}s`
+              // }}
             />
           ))}
         </div>
