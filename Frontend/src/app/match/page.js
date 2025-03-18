@@ -55,7 +55,7 @@ export default function MatchGame() {
     setForceUpdate((prev) => prev + 1);
   };
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-gray-900 text-white">
+    <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-gradient-to-b from-black via-purple-900 to-black text-white">
       <h1 className="text-3xl font-bold mb-6">Match Kannada Letters with Pronunciation</h1>
 
       <div className="grid grid-cols-2 gap-16">
@@ -86,7 +86,7 @@ export default function MatchGame() {
                 {results[pronunciation] || ""}
               </div>
 
-              <div className="p-4 text-xl bg-teal-500 w-24 text-center rounded-lg border-2 border-white shadow-lg flex items-center justify-between">
+              <div className="p-4 text-xl bg-black w-24 text-center rounded-lg border-2 border-white shadow-lg flex items-center justify-between">
                 <span>{pronunciation}</span>
                 <button onClick={() => playSound(audioSrc)}>
                   <Volume2 className="text-white w-6 h-6 cursor-pointer" />
