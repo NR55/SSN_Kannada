@@ -6,19 +6,6 @@ import { useRouter } from "next/navigation";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { initializeApp } from "firebase/app";
 
-// const firebaseConfig = {
-//     apiKey: "AIzaSyBUvxkPrQBH0uogH5X0S4Nem9pP5pB8meA",
-//     authDomain: "ssnkannada.firebaseapp.com",
-//     projectId: "ssnkannada",
-//     storageBucket: "ssnkannada.firebasestorage.app",
-//     messagingSenderId: "547971230377",
-//     appId: "1:547971230377:web:f64b093e7a3cb2f879d7b8",
-//     measurementId: "G-84XSTWVHZC"
-// };
-
-// const app = initializeApp(firebaseConfig);
-// const auth = getAuth(app);
-
 import { auth } from "../../lib/firebase"; // Adjust path as needed
 
 export default function LoginPage() {
