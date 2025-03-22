@@ -43,7 +43,8 @@ export default function Learn() {
       const imageBase64 = dataUrl.split(",")[1];
 
       const response = await fetch("http://localhost:5000/predict", {
-        method: "POST",
+      // const response = await fetch("http://10.135.120.178:5000/predict", {
+          method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ image: imageBase64 }),
       });
