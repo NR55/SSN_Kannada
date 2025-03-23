@@ -5,8 +5,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { initializeApp } from "firebase/app";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 
-import { auth } from "../../lib/firebase"; // Adjust path as needed
+import { auth } from "../lib/firebase"; // Adjust path as needed
+
+const db = getFirestore();
 
 export default function LoginPage() {
     const router = useRouter();
@@ -24,13 +27,23 @@ export default function LoginPage() {
     };
 
     const handleRegister = async () => {
-        try {
-            await createUserWithEmailAndPassword(auth, email, password);
-            router.push("/home");
-        } catch (err) {
-            setError(err.message);
-        }
-    };
+      try {
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          const user = userCredential.user;
+  
+          // Automatically create user document in Firestore with default values
+          await setDoc(doc(db, "users", user.uid), {
+              email: user.email,
+              currentLetter: "ಅ",  // First letter to learn
+              matchGameScores: [],
+              memoryGameScores: []
+          });
+  
+          router.push("/home"); // Redirect to home after successful signup
+      } catch (err) {
+          setError(err.message);
+      }
+  };
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 to-black text-white">
