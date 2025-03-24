@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
+import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
+import { auth } from "@/lib/firebase";
 import { allKannadaLetters } from "@/data/kannadaLetters";
 
 const getRandomLetters = () => {
@@ -10,6 +11,7 @@ const getRandomLetters = () => {
 };
 
 export default function MemoryGame() {
+  const db = getFirestore();
   const [kannadaLetters, setKannadaLetters] = useState(getRandomLetters);
   const [tiles, setTiles] = useState([]);
   const [selected, setSelected] = useState([]);
@@ -20,6 +22,48 @@ export default function MemoryGame() {
   const [gameOver, setGameOver] = useState(false);
   const [showInitialGrid, setShowInitialGrid] = useState(true);
   const [timerRunning, setTimerRunning] = useState(false);
+  const [userScores, setUserScores] = useState([]);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        fetchUserScores(currentUser.uid);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const fetchUserScores = async (uid) => {
+    if (!uid) return;
+    try {
+      const userRef = doc(db, "users", uid);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        setUserScores(userSnap.data().memoryGameScores || []);
+      }
+    } catch (error) {
+      console.error("Error fetching scores:", error);
+    }
+  };
+
+  const updateUserScore = async (newScore) => {
+    if (!user) return;
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+      const existingScores = userSnap.exists() ? userSnap.data().memoryGameScores || [] : [];
+      
+      const updatedScores = [...existingScores, newScore].slice(-5);
+      await updateDoc(userRef, { memoryGameScores: updatedScores });
+
+      setUserScores(updatedScores);
+    } catch (error) {
+      console.error("Error updating score:", error);
+    }
+  };
 
   useEffect(() => {
     const shuffledTiles = [...kannadaLetters, ...kannadaLetters].sort(() => Math.random() - 0.5);
@@ -43,10 +87,18 @@ export default function MemoryGame() {
     if (tiles.length > 0 && tiles.every(tile => tile.matched)) {
       setGameOver(true);
       setTimerRunning(false);
+
+      const baseScore = (tiles.length / 2) * 10;
+      const moveBonus = Math.max(0, 50 - moves);
+      const timePenalty = Math.floor(elapsedTime / 2);
+      const finalScore = Math.max(0, baseScore + moveBonus - timePenalty);
+
+      setScore(finalScore);
+      updateUserScore(finalScore);
     }
   }, [tiles]);
 
-  const handleTileClick = index => {
+  const handleTileClick = (index) => {
     if (showInitialGrid || selected.length === 2 || tiles[index].revealed || tiles[index].matched) return;
     if (!startTime) {
       setStartTime(Date.now());
@@ -107,36 +159,43 @@ export default function MemoryGame() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-gradient-to-b from-black via-purple-900 to-black text-white">
-      <h1 className="text-4xl font-extrabold mb-4 text-white-400">Kannada Memory Game</h1>
-      <p className="text-lg mb-4">Moves: {moves} | Score: {score} | Time: {timerRunning ? `${elapsedTime}s` : "Stopped"}</p>
+    <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-gradient-to-b from-black via-purple-900 to-black text-white">
+      <h1 className="text-4xl sm:text-5xl font-extrabold mb-6 text-yellow-400">Kannada Memory Game</h1>
 
-      <div className="grid grid-cols-4 gap-4">
-        {tiles.map((tile, index) => (
-          <div
-            key={index}
-            className={`w-20 h-20 flex items-center justify-center border-4 rounded-lg text-3xl font-bold cursor-pointer transition-all duration-300 
-              ${tile.revealed || tile.matched ? "bg-green-500 text-black border-green-700" : "bg-grey-600 text-white border-grey-800"}`}
-            onClick={() => handleTileClick(index)}
-          >
-            {tile.revealed || tile.matched ? tile.letter : "?"}
+      {/* Responsive layout: Stack on mobile, side-by-side on larger screens */}
+      <div className="flex flex-col md:flex-row w-full max-w-5xl space-y-6 md:space-y-0 md:space-x-8">
+
+        {/* Leaderboard */}
+        <div className="w-full md:w-1/3 p-6 bg-gray-900 rounded-lg shadow-xl border border-purple-500 text-center">
+          <h2 className="text-xl font-extrabold mb-4 text-yellow-400">Previous Points</h2>
+          {userScores.length > 0 ? (
+            <ul className="space-y-2">
+              {userScores.map((s, index) => (
+                <li key={index} className="text-lg font-semibold bg-purple-700 p-2 rounded-lg shadow-md">{s} pts</li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-400">No scores yet</p>
+          )}
+        </div>
+
+        {/* Game */}
+        <div className="flex flex-col items-center w-full md:w-2/3">
+          <p className="text-lg mb-4">Moves: {moves} | Score: {score} | Time: {timerRunning ? `${elapsedTime}s` : "Stopped"}</p>
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+            {tiles.map((tile, index) => (
+              <div key={index} className="w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center border-4 rounded-lg text-3xl font-bold" onClick={() => handleTileClick(index)}>
+                {tile.revealed || tile.matched ? tile.letter : "?"}
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
 
-      {gameOver && (
-        <div className="mt-6 p-4 bg-blue-500 text-white text-xl font-semibold rounded-lg">
-          🎉 Game Over! Moves: {moves} | Score: {score} | Time: {elapsedTime}s
-        </div>
-      )}
-
-      <div className="mt-6 flex gap-4">
-        <button onClick={resetGame} className="px-6 py-3 bg-yellow-500 text-black text-lg rounded-lg font-bold shadow-md hover:bg-yellow-600 transition-all duration-300">
-          Restart Game
-        </button>
-        <button onClick={giveUp} className="px-6 py-3 bg-red-500 text-white text-lg rounded-lg font-bold shadow-md hover:bg-red-600 transition-all duration-300">
-          Give Up
-        </button>
+      {/* Buttons Centered */}
+      <div className="mt-6 flex gap-4 text-3xl">
+        <button onClick={resetGame} className="border-2 p-2 rounded-2xl">Restart</button>
+        <button onClick={giveUp} className="border-2 p-2 rounded-2xl">Give Up</button>
       </div>
     </div>
   );
