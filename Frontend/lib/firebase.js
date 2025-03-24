@@ -18,11 +18,11 @@ const db = getFirestore(app);
 
 const getWrite2Level = async (uid) => {
     try {
-        const userDoc = await getDoc(doc(db, "userdetails", uid));
+        const userDoc = await getDoc(doc(db, "users", uid));
         if (userDoc.exists()) {
             return userDoc.data().write2level || 1;
         } else {
-            await setDoc(doc(db, "userdetails", uid), { write2level: 1 });
+            await setDoc(doc(db, "users", uid), { write2level: 1 });
             return 1;
         }
     } catch (error) {
@@ -37,7 +37,7 @@ const updateWrite2Level = async (uid, currentLevel) => {
         return;
     }
     try {
-        const userDocRef = doc(db, "userdetails", uid);
+        const userDocRef = doc(db, "users", uid);
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
             const existingLevel = userDoc.data().write2level || 1;

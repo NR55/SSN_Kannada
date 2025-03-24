@@ -3,6 +3,8 @@
 import { useRef, useState, useEffect } from "react";
 import { ReactSketchCanvas } from "react-sketch-canvas";
 import confetti from "canvas-confetti";
+import Link from "next/link";
+import { FaHome } from "react-icons/fa";
 
 import { allKannadaPronunciations } from "@/data/kannadaPronunciations";
 import { getWrite2Level, updateWrite2Level } from "../../../lib/firebase";
@@ -143,6 +145,15 @@ export default function Learn() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-purple-900 to-black text-white p-6 relative">
+      {/* Home button in top left corner */}
+      <Link href="/home" className="absolute top-4 left-4 bg-purple-800 hover:bg-purple-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105">
+        {/* <span role="img" aria-label="Home" className="text-xl">🏠</span> */}
+        <span>
+        <FaHome className="text-xl" />
+        </span>
+
+      </Link>
+
       {/* Full-screen confetti canvas with higher z-index */}
       <canvas
         ref={confettiCanvasRef}
