@@ -341,39 +341,48 @@ export default function HomePage() {
     });
   };
 
-  const handleLogout = async () => {
-    await signOut(auth);
-    router.push("/");
+  const LogoutButton = () => {
+    const handleLogout = async () => {
+      try {
+        await signOut(auth);
+        router.push("/");
+      } catch (error) {
+        console.error("Logout failed", error);
+      }
+    };
+
+    return (
+      <button
+        onClick={handleLogout}
+        className="cursor-pointer absolute top-4 right-6 px-4 py-2 text-white bg-purple-700 bg-opacity-80 rounded-lg shadow-lg hover:bg-purple-800 hover:scale-105"
+      >
+        Logout
+      </button>
+    );
   };
+
 
   return (
     <div ref={mainRef} className="relative min-h-screen overflow-x-hidden bg-gradient-to-b from-black via-purple-900 to-black text-white">
-      {/* Preloader */}
       <div className="preloader fixed inset-0 z-50 bg-black flex items-center justify-center">
         <div className="text-4xl font-bold text-white">ಕನ್ನಡ</div>
       </div>
-      
-      {/* Particle background - only render on client side */}
+
       {isClient && (
         <div className="fixed inset-0 z-0">
           <ParticleBackground />
         </div>
       )}
       
-      {/* Floating Kannada letters in background - only render on client side */}
       {isClient && <FloatingLetters />}
 
-      {/* Hero Section */}
       <section className="h-screen flex flex-col items-center justify-center text-center relative z-10">
+        <LogoutButton />
         <div className="hero-content">
           <h1 ref={titleRef} className="text-7xl font-extrabold drop-shadow-lg bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">
             {("📚 Kannada Learning Hub")}
           </h1>
 
-          {/* <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white"> */}
-            {/* <h1 className="text-3xl mb-4">Welcome Home</h1> */}
-            <button onClick={handleLogout} className="bg-red-500 p-2">Logout</button>
-          {/* </div> */}
           <p ref={subTitleRef} className="text-2xl mt-4 text-purple-200">
             Fun & Interactive Games to Learn Kannada Alphabets!
           </p>
@@ -389,7 +398,7 @@ export default function HomePage() {
                 onClick={() => router.push(item.path)}
                 onMouseEnter={() => handleMouseEnter(index)}
                 onMouseLeave={() => handleMouseLeave(index)}
-                className={`px-8 py-4 ${item.color} text-white text-xl rounded-xl shadow-lg transform transition-all`}
+                className={`px-8 py-4 ${item.color} text-white text-xl rounded-xl shadow-lg transform transition-all cursor-pointer`}
               >
                 {item.label}
               </button>
