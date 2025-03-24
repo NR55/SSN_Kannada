@@ -7,7 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import { Canvas } from "@react-three/fiber";
 import { Points, PointMaterial } from "@react-three/drei";
-import { auth } from "../../lib/firebase"; // Adjust path as needed
+import { auth } from "../../../lib/firebase";
 import { signOut } from "firebase/auth";
 import * as THREE from "three";
 

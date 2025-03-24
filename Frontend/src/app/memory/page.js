@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
-import { auth } from "@/lib/firebase";
+import { auth } from "../../../lib/firebase";
 import { allKannadaLetters } from "@/data/kannadaLetters";
+import { FaHome, FaRedo } from "react-icons/fa";
+import Link from "next/link";
 
 const getRandomLetters = () => {
   const shuffled = allKannadaLetters.sort(() => 0.5 - Math.random());
@@ -160,6 +162,14 @@ export default function MemoryGame() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-gradient-to-b from-black via-purple-900 to-black text-white">
+      <span className="absolute top-4 left-4 flex gap-4">
+        <Link href="/home" className="bg-purple-800 hover:bg-purple-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105">
+          <FaHome className="text-xl" />
+        </Link>
+        <button onClick={() => window.location.reload()} className="bg-purple-800 hover:bg-purple-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105">
+          <FaRedo className="text-xl" />
+        </button>
+      </span>
       <h1 className="text-4xl sm:text-5xl font-extrabold mb-6 text-yellow-400">Kannada Memory Game</h1>
 
       {/* Responsive layout: Stack on mobile, side-by-side on larger screens */}

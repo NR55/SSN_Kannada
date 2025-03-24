@@ -5,8 +5,10 @@ import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
 import Howler from "react-howler";
 import { Volume2 } from "lucide-react";
 import { allKannadaPronunciations } from "@/data/kannadaPronunciations";
-import { auth } from "@/lib/firebase";
+import { auth } from "../../../lib/firebase"
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { FaHome, FaRedo } from "react-icons/fa";
+import Link from "next/link";
 
 export default function MatchGame() {
   const db = getFirestore();
@@ -120,7 +122,15 @@ export default function MatchGame() {
 
   return (
     <div className="relative w-full min-h-screen flex flex-col">
-      {/* Main Content */}
+      <span className="absolute top-4 left-4 flex gap-4">
+        <Link href="/home" className="bg-purple-800 hover:bg-purple-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105">
+          <FaHome className="text-xl" />
+        </Link>
+        <button onClick={() => window.location.reload()} className="bg-purple-800 hover:bg-purple-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105">
+          <FaRedo className="text-xl" />
+        </button>
+      </span>
+
       <div className="flex flex-col md:flex-row items-center justify-center flex-grow w-full bg-gradient-to-b from-black via-purple-900 to-black text-white p-4 md:p-8 gap-6">
 
         {/* Leaderboard - Left 1/3 */}
