@@ -68,6 +68,7 @@ export default function Learn() {
   };
 
   const playAudio = (audioRef) => {
+    console.log(audioRef)
     if (audioRef.current) {
       audioRef.current.play();
     }
@@ -77,7 +78,6 @@ export default function Learn() {
     if (!canvasRef.current) return;
     setFeedback("Checking...");
     setFeedbackType("checking");
-
     try {
       const paths = await canvasRef.current.exportPaths();
       if (!paths.length) {
@@ -85,7 +85,6 @@ export default function Learn() {
         setFeedbackType("error");
         return;
       }
-
       const dataUrl = await canvasRef.current.exportImage("png");
       const imageBase64 = dataUrl.split(",")[1];
       const response = await fetch("http://localhost:5000/predict", {
@@ -115,11 +114,6 @@ export default function Learn() {
           }
         }
       } else {
-        // setFeedback(`Incorrect! Please try again.`);
-        // setFeedbackType("error");
-        // playAudio(wrongAudioRef);
-        // setShakeCanvas(true);
-        // setTimeout(() => setShakeCanvas(false), 500);
         setFeedback(`Incorrect! Please try again.`);
         setFeedbackType("error");
         playAudio(wrongAudioRef);
@@ -169,7 +163,6 @@ export default function Learn() {
 
   return (
     <div className={`min-h-screen bg-gradient-to-b from-black via-purple-900 to-black text-white p-6 relative ${shakeCanvas ? "animate-shake" : ""}`}>
-    {/* <div className="min-h-screen bg-gradient-to-b from-black via-purple-900 to-black text-white p-6 relative"> */}
       <Link href="/home" className="absolute top-4 left-4 bg-purple-800 hover:bg-purple-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105">
         <span>
           <FaHome className="text-xl" />
@@ -207,7 +200,6 @@ export default function Learn() {
         </div>
 
         <div className="flex flex-col md:flex-row gap-8 items-stretch justify-center mb-8">
-          {/* Original Letter Pane */}
           <div className="bg-gray-900 rounded-xl shadow-xl p-6 flex flex-col items-center border border-purple-800 w-full md:w-1/2 min-h-[520px]">
             <h2 className="text-gray-300 text-xl mb-4">Original Letter</h2>
             <div className="h-80 w-80 flex items-center justify-center border-2 border-purple-800 rounded-lg bg-gray-900">
@@ -238,8 +230,6 @@ export default function Learn() {
                 className="border-2 border-purple-800 rounded-lg shadow-md"
               />
             </div>
-
-            {/* Fixed-height container for buttons and feedback */}
             <div className="mt-4 w-full flex flex-col flex-grow">
               <div className="flex gap-2 w-full">
                 <button onClick={sendDrawing} className="cursor-pointer flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Check</button>
@@ -249,8 +239,6 @@ export default function Learn() {
                   setFeedbackType(null);
                 }} className="cursor-pointer flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">Clear</button>
               </div>
-
-              {/* Feedback box with fixed height */}
               <div className="mt-4 min-h-[60px] flex items-center justify-center">
                 {feedback && (
                   <div className={`p-3 rounded-lg w-full text-center ${getFeedbackStyles()}`}>
