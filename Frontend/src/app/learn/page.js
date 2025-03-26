@@ -5,7 +5,6 @@ import { ReactSketchCanvas } from "react-sketch-canvas";
 import confetti from "canvas-confetti";
 import Link from "next/link";
 import { FaHome } from "react-icons/fa";
-
 import { allKannadaPronunciations } from "@/data/kannadaPronunciations";
 import { getWrite2Level, updateWrite2Level } from "../../../lib/firebase";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
@@ -20,19 +19,21 @@ export default function Learn() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [prediction, setPrediction] = useState(null);
   const [feedback, setFeedback] = useState(null);
-  const [feedbackType, setFeedbackType] = useState(null); // 'checking', 'correct', 'error'
+  const [feedbackType, setFeedbackType] = useState(null);
   const [canvasKey, setCanvasKey] = useState(0);
   const [write2level, setWrite2Level] = useState(1);
   const audioRef = useRef(null);
   const [initialLoading, setInitialLoading] = useState(true);
+  const correctAudioRef = useRef(null);
+  const wrongAudioRef = useRef(null);
+  const [shakeCanvas, setShakeCanvas] = useState(false);
 
   useEffect(() => {
     async function fetchWrite2Level(uid) {
-      if (!uid) return; // Ensure UID is available
+      if (!uid) return;
       const level = await getWrite2Level(uid);
       setWrite2Level(level || 1);
     }
-
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setInitialLoading(false);
@@ -41,8 +42,7 @@ export default function Learn() {
         router.push("/");
       }
     });
-
-    return () => unsubscribe(); // Cleanup listener
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -59,7 +59,6 @@ export default function Learn() {
       resize: true,
       useWorker: true
     });
-
     myConfetti({
       particleCount: 300,
       spread: 160,
@@ -68,7 +67,7 @@ export default function Learn() {
     });
   };
 
-  const playAudio = () => {
+  const playAudio = (audioRef) => {
     if (audioRef.current) {
       audioRef.current.play();
     }
@@ -89,7 +88,6 @@ export default function Learn() {
 
       const dataUrl = await canvasRef.current.exportImage("png");
       const imageBase64 = dataUrl.split(",")[1];
-
       const response = await fetch("http://localhost:5000/predict", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -97,7 +95,6 @@ export default function Learn() {
       });
 
       if (!response.ok) throw new Error("Failed to get prediction");
-
       const data = await response.json();
       setPrediction(data.prediction || "Error");
 
@@ -107,18 +104,27 @@ export default function Learn() {
       if (data.prediction === allKannadaPronunciations[currentIndex].letter) {
         setFeedback("Correct! Well done!");
         setFeedbackType("correct");
+        playAudio(correctAudioRef);
         triggerConfetti();
 
         if (user) {
           const newLevel = Math.max(write2level, currentIndex + 2);
           if (newLevel > write2level) {
-            await updateWrite2Level(user.uid, newLevel); // Send UID for update
+            await updateWrite2Level(user.uid, newLevel);
             setWrite2Level(newLevel);
           }
         }
       } else {
-        setFeedback(`Incorrect! You wrote: ${data.prediction}`);
+        // setFeedback(`Incorrect! Please try again.`);
+        // setFeedbackType("error");
+        // playAudio(wrongAudioRef);
+        // setShakeCanvas(true);
+        // setTimeout(() => setShakeCanvas(false), 500);
+        setFeedback(`Incorrect! Please try again.`);
         setFeedbackType("error");
+        playAudio(wrongAudioRef);
+        setShakeCanvas(true);
+        setTimeout(() => setShakeCanvas(false), 500);
       }
     } catch (error) {
       console.error("Error sending drawing:", error);
@@ -162,21 +168,17 @@ export default function Learn() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-purple-900 to-black text-white p-6 relative">
-      {/* Home button in top left corner */}
+    <div className={`min-h-screen bg-gradient-to-b from-black via-purple-900 to-black text-white p-6 relative ${shakeCanvas ? "animate-shake" : ""}`}>
+    {/* <div className="min-h-screen bg-gradient-to-b from-black via-purple-900 to-black text-white p-6 relative"> */}
       <Link href="/home" className="absolute top-4 left-4 bg-purple-800 hover:bg-purple-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105">
-        {/* <span role="img" aria-label="Home" className="text-xl">🏠</span> */}
         <span>
-        <FaHome className="text-xl" />
+          <FaHome className="text-xl" />
         </span>
-
       </Link>
 
-      {/* Full-screen confetti canvas with higher z-index */}
       <canvas
         ref={confettiCanvasRef}
         className="fixed inset-0 pointer-events-none z-50 w-full h-full"
-        style={{ width: '100vw', height: '100vh' }}
       />
 
       <div className="max-w-6xl mx-auto">
@@ -209,15 +211,16 @@ export default function Learn() {
           <div className="bg-gray-900 rounded-xl shadow-xl p-6 flex flex-col items-center border border-purple-800 w-full md:w-1/2 min-h-[520px]">
             <h2 className="text-gray-300 text-xl mb-4">Original Letter</h2>
             <div className="h-80 w-80 flex items-center justify-center border-2 border-purple-800 rounded-lg bg-gray-900">
-              <span className="text-[160px] font-bold text-white-400">{allKannadaPronunciations[currentIndex].letter}</span>
+              <span className="text-[160px] font-bold text-white-400">
+                {allKannadaPronunciations[currentIndex].letter}
+              </span>
             </div>
-            <button onClick={playAudio} className="cursor-pointer mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">🔊 Play Pronunciation</button>
+            <button onClick={() => playAudio(audioRef)} className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">🔊 Play Pronunciation</button>
             <audio ref={audioRef} src={allKannadaPronunciations[currentIndex].audioSrc} />
             <p className="mt-4 text-gray-400">Pronunciation: {allKannadaPronunciations[currentIndex].pronunciation}</p>
           </div>
 
-          {/* Trace Here Pane */}
-          <div className="bg-gray-900 rounded-xl shadow-xl p-6 border border-purple-800 w-full md:w-1/2 min-h-[520px] flex flex-col items-center">
+          <div className={`bg-gray-900 rounded-xl shadow-xl p-6 border border-purple-800 w-full md:w-1/2 min-h-[520px] flex flex-col items-center ${shakeCanvas ? "animate-shake" : ""}`}>
             <h2 className="text-gray-300 text-xl mb-4">Trace Here</h2>
             <div className="relative w-[320px] h-[320px] flex items-center justify-center">
               <div className="absolute inset-0 flex items-center justify-center text-gray-400 opacity-20 text-[200px] pointer-events-none select-none">
@@ -255,6 +258,8 @@ export default function Learn() {
                   </div>
                 )}
               </div>
+              <audio ref={correctAudioRef} src="/audio/tracks/claps.mp3" />
+              <audio ref={wrongAudioRef} src="/audio/tracks/error.mp3" />
             </div>
           </div>
         </div>
