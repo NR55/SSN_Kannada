@@ -9,8 +9,10 @@ import { auth } from "../../../lib/firebase"
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { FaHome, FaRedo } from "react-icons/fa";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function MatchGame() {
+  const router = useRouter();
   const db = getFirestore();
   const [user, setUser] = useState(null);
   const [userScores, setUserScores] = useState([]);
@@ -23,12 +25,16 @@ export default function MatchGame() {
   const [forceUpdate, setForceUpdate] = useState(0);
   const [startTime, setStartTime] = useState(null);
   const [draggingLetter, setDraggingLetter] = useState(null);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
+        setInitialLoading(false);
         setUser(currentUser);
         fetchUserScores(currentUser.uid);
+      } else {
+        router.push("/");
       }
     });
 
@@ -61,13 +67,6 @@ export default function MatchGame() {
     }
   };
 
-  const handleTouchStart = (letter) => {
-    setDraggingLetter(letter);
-  };
-
-  const handleTouchEnd = (e, pronunciation) => {
-    handleDrop(e, pronunciation);
-  };
 
   const checkAnswer = async () => {
     let correctCount = 0;
@@ -120,6 +119,18 @@ export default function MatchGame() {
     setForceUpdate((prev) => prev + 1);
   };
 
+  if (initialLoading) {
+      return (
+          <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-black via-purple-950 to-black text-white">
+              <div className="text-center">
+                  <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500 mx-auto mb-4"></div>
+                  <h2 className="text-xl font-semibold text-purple-200">Initializing...</h2>
+                  <p className="text-purple-400 mt-2">Please wait while we check your session</p>
+              </div>
+          </div>
+      );
+  }
+
   return (
     <div className="relative w-full min-h-screen flex flex-col">
       <span className="absolute top-4 left-4 flex gap-4">
@@ -155,7 +166,6 @@ export default function MatchGame() {
               className="p-4 text-2xl font-bold bg-purple-500 w-20 sm:w-24 text-center rounded-lg cursor-pointer shadow-lg mx-auto"
               draggable
               onDragStart={(e) => e.dataTransfer.setData("letter", letter)}
-              onTouchStart={() => handleTouchStart(letter)}
             >
               {letter}
             </div>
@@ -170,7 +180,6 @@ export default function MatchGame() {
                 className="w-20 sm:w-24 h-16 flex items-center justify-center bg-gray-700 border-2 border-white rounded-lg shadow-lg"
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => handleDrop(e, pronunciation)}
-                onTouchEnd={(e) => handleTouchEnd(e, pronunciation)}
               >
                 {matches[pronunciation] ? <span className="text-2xl">{matches[pronunciation]}</span> : null}
                 {results[pronunciation] || ""}
