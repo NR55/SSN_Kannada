@@ -6,6 +6,7 @@ import { auth } from "../../../lib/firebase";
 import { allKannadaLetters } from "@/data/kannadaLetters";
 import { FaHome, FaRedo } from "react-icons/fa";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const getRandomLetters = () => {
   const shuffled = allKannadaLetters.sort(() => 0.5 - Math.random());
@@ -13,6 +14,7 @@ const getRandomLetters = () => {
 };
 
 export default function MemoryGame() {
+  const router = useRouter();
   const db = getFirestore();
   const [kannadaLetters, setKannadaLetters] = useState(getRandomLetters);
   const [tiles, setTiles] = useState([]);
@@ -26,12 +28,16 @@ export default function MemoryGame() {
   const [timerRunning, setTimerRunning] = useState(false);
   const [userScores, setUserScores] = useState([]);
   const [user, setUser] = useState(null);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       if (currentUser) {
+        setInitialLoading(false);
         setUser(currentUser);
         fetchUserScores(currentUser.uid);
+      } else {
+        router.push("/")
       }
     });
 
@@ -159,6 +165,18 @@ export default function MemoryGame() {
       setShowInitialGrid(false);
     }, 5000);
   };
+
+  if (initialLoading) {
+      return (
+          <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-black via-purple-950 to-black text-white">
+              <div className="text-center">
+                  <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500 mx-auto mb-4"></div>
+                  <h2 className="text-xl font-semibold text-purple-200">Initializing...</h2>
+                  <p className="text-purple-400 mt-2">Please wait while we check your session</p>
+              </div>
+          </div>
+      );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-gradient-to-b from-black via-purple-900 to-black text-white">

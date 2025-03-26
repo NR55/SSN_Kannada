@@ -8,10 +8,12 @@ import { FaHome } from "react-icons/fa";
 import { allKannadaPronunciations } from "@/data/kannadaPronunciations";
 import { getWrite2Level, updateWrite2Level } from "../../../lib/firebase";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
 const auth = getAuth();
 
 export default function Learn() {
+  const router = useRouter();
   const canvasRef = useRef(null);
   const confettiCanvasRef = useRef(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -21,6 +23,7 @@ export default function Learn() {
   const [canvasKey, setCanvasKey] = useState(0);
   const [write2level, setWrite2Level] = useState(1);
   const audioRef = useRef(null);
+  const [initialLoading, setInitialLoading] = useState(true);
   const correctAudioRef = useRef(null);
   const wrongAudioRef = useRef(null);
   const [shakeCanvas, setShakeCanvas] = useState(false);
@@ -33,7 +36,10 @@ export default function Learn() {
     }
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        fetchWrite2Level(user.uid);
+        setInitialLoading(false);
+        fetchWrite2Level(user.uid); // Pass user's UID
+      } else {
+        router.push("/");
       }
     });
     return () => unsubscribe();
@@ -148,6 +154,18 @@ export default function Learn() {
         return "text-gray-300";
     }
   };
+
+  if (initialLoading) {
+      return (
+          <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-black via-purple-950 to-black text-white">
+              <div className="text-center">
+                  <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500 mx-auto mb-4"></div>
+                  <h2 className="text-xl font-semibold text-purple-200">Initializing...</h2>
+                  <p className="text-purple-400 mt-2">Please wait while we check your session</p>
+              </div>
+          </div>
+      );
+  }
 
   return (
     <div className={`min-h-screen bg-gradient-to-b from-black via-purple-900 to-black text-white p-6 relative ${shakeCanvas ? "animate-shake" : ""}`}>

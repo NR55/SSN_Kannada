@@ -10,6 +10,7 @@ import { Points, PointMaterial } from "@react-three/drei";
 import { auth } from "../../../lib/firebase";
 import { signOut } from "firebase/auth";
 import * as THREE from "three";
+import { onAuthStateChanged } from "firebase/auth";
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
@@ -110,6 +111,16 @@ export default function HomePage() {
   const footerRef = useRef(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+          const unsubscribe = onAuthStateChanged(auth, (user) => {
+              if (user == null ) {
+                  router.push("/");
+              }
+          });
+          return () => unsubscribe();
+      }, [router]);
+
   // const auth = getAuth();
 
   // Set client-side state
@@ -298,21 +309,21 @@ export default function HomePage() {
     });
 
     // Footer animation
-    gsap.fromTo(
-      footerRef.current,
-      { y: 50, opacity: 0 },
-      {
-        y: 0,
-        opacity: 1,
-        duration: 1,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: footerRef.current,
-          start: "top bottom",
-          toggleActions: "play none none none"
-        }
-      }
-    );
+    // gsap.fromTo(
+    //   footerRef.current,
+    //   { y: 50, opacity: 0 },
+    //   {
+    //     y: 0,
+    //     opacity: 1,
+    //     duration: 1,
+    //     ease: "power2.out",
+    //     scrollTrigger: {
+    //       trigger: footerRef.current,
+    //       start: "top bottom",
+    //       toggleActions: "play none none none"
+    //     }
+    //   }
+    // );
 
     return () => {
       // Clean up all scroll triggers
@@ -379,7 +390,7 @@ export default function HomePage() {
       <section className="h-screen flex flex-col items-center justify-center text-center relative z-10">
         <LogoutButton />
         <div className="hero-content">
-          <h1 ref={titleRef} className="text-7xl font-extrabold drop-shadow-lg bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">
+          <h1 ref={titleRef} className="text-7xl font-extrabold drop-shadow-lg bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600 h-20">
             {("📚 Kannada Learning Hub")}
           </h1>
 
