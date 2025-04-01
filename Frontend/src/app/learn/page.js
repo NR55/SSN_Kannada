@@ -33,6 +33,7 @@ export default function Learn() {
       if (!uid) return;
       const level = await getWrite2Level(uid);
       setWrite2Level(level || 1);
+      setCurrentIndex(level-1 || 0);
     }
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -81,7 +82,7 @@ export default function Learn() {
     try {
       const paths = await canvasRef.current.exportPaths();
       if (!paths.length) {
-        setFeedback("Please draw something first");
+        setFeedback("Please draw something first!!");
         setFeedbackType("error");
         return;
       }
