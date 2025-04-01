@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
-import Howler from "react-howler";
 import { Volume2 } from "lucide-react";
 import { allKannadaPronunciations } from "@/data/kannadaPronunciations";
 import { auth } from "../../../lib/firebase"
@@ -115,6 +114,8 @@ export default function MatchGame() {
   };
 
   const playSound = (audioSrc) => {
+    const audio = new Audio(audioSrc);
+    audio.play().catch((error) => console.error("Error playing audio:", error));
     setPlayingSound(audioSrc);
     setForceUpdate((prev) => prev + 1);
   };
@@ -195,7 +196,6 @@ export default function MatchGame() {
         </div>
       </div>
 
-      {/* Buttons - Always at Bottom of Page */}
       <div className="absolute bottom-0 left-0 right-0 flex flex-col sm:flex-row justify-center gap-4 px-4 py-6 bg-black">
         <button onClick={checkAnswer} className="px-6 py-3 bg-yellow-500 text-black text-lg rounded-lg shadow-lg hover:bg-yellow-400 transition w-full sm:w-auto">
           Check Answer
