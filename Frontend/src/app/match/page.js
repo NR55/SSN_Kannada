@@ -57,15 +57,38 @@ export default function MatchGame() {
     }
   };
 
+  // Handle start of drag/touch for letters
+  const handleDragStart = (letter) => {
+    setDraggingLetter(letter);
+    return letter;
+  };
+
+  // Handle touch start for mobile
+  const handleTouchStart = (e, letter) => {
+    e.preventDefault();
+    setDraggingLetter(letter);
+  };
+
+  // Handle drop for both mouse and touch
   const handleDrop = (e, pronunciation) => {
     e.preventDefault();
+    // For mouse drag and drop
     const letter = e.dataTransfer ? e.dataTransfer.getData("letter") : draggingLetter;
+    
     if (letter) {
       setMatches((prev) => ({ ...prev, [pronunciation]: letter }));
       setDraggingLetter(null);
     }
   };
 
+  // Handle touch end for mobile
+  const handleTouchEnd = (e, pronunciation) => {
+    e.preventDefault();
+    if (draggingLetter) {
+      setMatches((prev) => ({ ...prev, [pronunciation]: draggingLetter }));
+      setDraggingLetter(null);
+    }
+  };
 
   const checkAnswer = async () => {
     let correctCount = 0;
@@ -164,9 +187,14 @@ export default function MatchGame() {
           {shuffledLetters.map(({ letter }) => (
             <div
               key={letter}
-              className="p-4 text-2xl font-bold bg-purple-500 w-20 sm:w-24 text-center rounded-lg cursor-pointer shadow-lg mx-auto"
+              className={`p-4 text-2xl font-bold bg-purple-500 w-20 sm:w-24 text-center rounded-lg cursor-pointer shadow-lg mx-auto ${draggingLetter === letter ? 'opacity-50' : ''}`}
               draggable
-              onDragStart={(e) => e.dataTransfer.setData("letter", letter)}
+              onDragStart={(e) => {
+                e.dataTransfer.setData("letter", letter);
+                handleDragStart(letter);
+              }}
+              onTouchStart={(e) => handleTouchStart(e, letter)}
+              onClick={() => handleDragStart(letter)}
             >
               {letter}
             </div>
@@ -178,9 +206,16 @@ export default function MatchGame() {
           {selectedPairs.map(({ pronunciation, audioSrc }) => (
             <div key={pronunciation} className="flex flex-col sm:flex-row items-center gap-4">
               <div
-                className="w-20 sm:w-24 h-16 flex items-center justify-center bg-gray-700 border-2 border-white rounded-lg shadow-lg"
+                className={`w-20 sm:w-24 h-16 flex items-center justify-center bg-gray-700 border-2 border-white rounded-lg shadow-lg ${draggingLetter ? 'border-yellow-400 border-4' : ''}`}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => handleDrop(e, pronunciation)}
+                onTouchEnd={(e) => handleTouchEnd(e, pronunciation)}
+                onClick={() => {
+                  if (draggingLetter) {
+                    setMatches((prev) => ({ ...prev, [pronunciation]: draggingLetter }));
+                    setDraggingLetter(null);
+                  }
+                }}
               >
                 {matches[pronunciation] ? <span className="text-2xl">{matches[pronunciation]}</span> : null}
                 {results[pronunciation] || ""}
@@ -204,6 +239,12 @@ export default function MatchGame() {
           Clear All
         </button>
       </div>
+
+      {/* {draggingLetter && (
+        <div className="fixed bottom-16 left-0 right-0 bg-yellow-500 text-black py-2 text-center font-bold">
+          Currently selected: {draggingLetter} - Tap a drop zone to place it
+        </div>
+      )} */}
     </div>
   );
 }
