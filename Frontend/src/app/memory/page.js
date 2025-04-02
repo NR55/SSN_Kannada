@@ -91,16 +91,22 @@ export default function MemoryGame() {
     return () => clearInterval(timer);
   }, [startTime, gameOver]);
 
+  const calculateScore = () => {
+    const matches = (tiles.filter(tile => tile.matched === true).length) / 2;
+    const misselections = moves-matches;
+    const baseScore = Math.max((matches) * 10 - misselections, 0);
+    const timePenalty = Math.floor(elapsedTime / 2);
+    let score = Math.floor(Math.max(0, baseScore - timePenalty));
+    if(matches != 6)
+      score = score*0.75;
+    return score
+  };
+
   useEffect(() => {
     if (tiles.length > 0 && tiles.every(tile => tile.matched)) {
       setGameOver(true);
       setTimerRunning(false);
-
-      const baseScore = (tiles.length / 2) * 10;
-      const moveBonus = Math.max(0, 50 - moves);
-      const timePenalty = Math.floor(elapsedTime / 2);
-      const finalScore = Math.max(0, baseScore + moveBonus - timePenalty);
-
+      const finalScore = calculateScore()
       setScore(finalScore);
       updateUserScore(finalScore);
     }
@@ -144,6 +150,9 @@ export default function MemoryGame() {
     setTiles(tiles.map(tile => ({ ...tile, revealed: true })));
     setGameOver(true);
     setTimerRunning(false);
+    const finalScore = calculateScore()
+    setScore(finalScore);
+    updateUserScore(finalScore);
   };
 
   const resetGame = () => {
@@ -222,8 +231,8 @@ export default function MemoryGame() {
 
       {/* Buttons Centered */}
       <div className="mt-6 flex gap-4 text-3xl">
-        <button onClick={resetGame} className="border-2 p-2 rounded-2xl">Restart</button>
-        <button onClick={giveUp} className="border-2 p-2 rounded-2xl">Give Up</button>
+        <button onClick={resetGame} className="border-2 p-2 bg-yellow-500 text-black rounded-2xl cursor-pointer">Restart</button>
+        <button onClick={giveUp} className="border-2 p-2 bg-red-500 rounded-2xl cursor-pointer">Give Up</button>
       </div>
     </div>
   );
