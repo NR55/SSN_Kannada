@@ -37,8 +37,10 @@ def predict():
         processed_image = preprocess_image(image_data)  # Preprocess
         prediction = model.predict(processed_image)
         predicted_label = label_classes[np.argmax(prediction)]  # Get class
-        
-        return jsonify({"prediction": predicted_label})
+        accuracy = (prediction[0][np.argmax(prediction)]*10000).astype(int)/100.0
+        print(f"************************\nPrediction:{predicted_label}")
+        print(f"Accuracy:{accuracy}%\n************************")
+        return jsonify({"prediction": str(predicted_label), "accuracy": float(accuracy)})
     except Exception as e:
         return jsonify({"error": str(e)})
 

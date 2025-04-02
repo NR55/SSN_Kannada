@@ -206,7 +206,7 @@ export default function MatchGame() {
           {selectedPairs.map(({ pronunciation, audioSrc }) => (
             <div key={pronunciation} className="flex flex-col sm:flex-row items-center gap-4">
               <div
-                className={`w-20 sm:w-24 h-16 flex items-center justify-center bg-gray-700 border-2 border-white rounded-lg shadow-lg ${draggingLetter ? 'border-yellow-400 border-4' : ''}`}
+                className={`w-20 sm:w-24 h-16 flex items-center justify-center bg-gray-700 border-2 border-white rounded-lg shadow-lg ${draggingLetter ? 'border-yellow-400 border-4 cursor-pointer' : ''}`}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => handleDrop(e, pronunciation)}
                 onTouchEnd={(e) => handleTouchEnd(e, pronunciation)}

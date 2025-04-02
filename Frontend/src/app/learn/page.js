@@ -95,7 +95,10 @@ export default function Learn() {
       });
 
       if (!response.ok) throw new Error("Failed to get prediction");
+      // console.log(response.body)
       const data = await response.json();
+      // console.log(data)
+      console.log("Prediction is :",data.prediction, "with accuracy :",data.accuracy,"%.")
       setPrediction(data.prediction || "Error");
 
       const auth = getAuth();
@@ -184,7 +187,7 @@ export default function Learn() {
                 className={`px-5 py-2 text-xl font-bold rounded-lg transition-all ${index === currentIndex
                   ? "bg-purple-600 text-white scale-105 shadow-md"
                   : index < write2level
-                    ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                    ? "bg-gray-800 text-gray-300 hover:bg-gray-700 cursor-pointer"
                     : "bg-gray-600 text-gray-500 cursor-not-allowed"
                   }`}
                 onClick={() => changeLetter(index)}
@@ -208,7 +211,7 @@ export default function Learn() {
                 {allKannadaPronunciations[currentIndex].letter}
               </span>
             </div>
-            <button onClick={() => playAudio(audioRef)} className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">🔊 Play Pronunciation</button>
+            <button onClick={() => playAudio(audioRef)} className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition cursor-pointer">🔊 Play Pronunciation</button>
             <audio ref={audioRef} src={allKannadaPronunciations[currentIndex].audioSrc} />
             <p className="mt-4 text-gray-400">Pronunciation: {allKannadaPronunciations[currentIndex].pronunciation}</p>
           </div>

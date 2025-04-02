@@ -53,7 +53,7 @@ export default function LoginPage() {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            const userDetailsRef = doc(db, "userdetails", user.uid);
+            const userDetailsRef = doc(db, "users", user.uid);
             await setDoc(userDetailsRef, {
                 name: name,
                 matchGameScores: [],

@@ -98,7 +98,7 @@ export default function MemoryGame() {
     const timePenalty = Math.floor(elapsedTime / 2);
     let score = Math.floor(Math.max(0, baseScore - timePenalty));
     if(matches != 6)
-      score = score*0.75;
+      score = Math.floor(score*0.75);
     return score
   };
 
