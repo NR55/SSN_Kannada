@@ -9,6 +9,7 @@ import { Canvas } from "@react-three/fiber";
 import { Points, PointMaterial } from "@react-three/drei";
 import { auth } from "../../../lib/firebase";
 import { signOut } from "firebase/auth";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
 import * as THREE from "three";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -18,11 +19,10 @@ gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 // Custom particle system using Three.js and react-three-fiber
 function ParticleCloud() {
   const ref = useRef();
- 
   // Generate random positions for particles
   const count = 3000;
   const positions = new Float32Array(count * 3);
-  
+
   for (let i = 0; i < count; i++) {
     const i3 = i * 3;
     positions[i3] = (Math.random() - 0.5) * 10;
@@ -69,7 +69,7 @@ const ParticleBackground = () => {
 const FloatingLetters = () => {
   const [letters, setLetters] = useState([]);
   const kannadaLetters = ["ಅ", "ಆ", "ಇ", "ಈ", "ಉ", "ಊ", "ಋ", "ಎ", "ಏ", "ಐ"];
-  
+
   useEffect(() => {
     // Generate positions only on client side
     const letterPositions = kannadaLetters.map((letter) => ({
@@ -77,15 +77,15 @@ const FloatingLetters = () => {
       top: `${Math.random() * 100}%`,
       left: `${Math.random() * 100}%`
     }));
-    
+
     setLetters(letterPositions);
   }, []);
-  
+
   return (
     <div className="fixed inset-0 z-0 overflow-hidden">
       {letters.map((item, index) => (
-        <div 
-          key={index} 
+        <div
+          key={index}
           className="floating-letter absolute text-4xl opacity-20 text-white"
           style={{
             top: item.top,
@@ -112,16 +112,34 @@ export default function HomePage() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
-  useEffect(() => {
-          const unsubscribe = onAuthStateChanged(auth, (user) => {
-              if (user == null ) {
-                  router.push("/");
-              }
-          });
-          return () => unsubscribe();
-      }, [router]);
+  const [user, setUser] = useState(null);
+  const [userStats, setUserStats] = useState(null);
+  const db = getFirestore();
 
-  // const auth = getAuth();
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user == null) {
+        router.push("/");
+      }else{
+        setUser(user);
+        await fetchUserStats(user.uid);
+      }
+    });
+    return () => unsubscribe();
+  }, [router]);
+
+  const fetchUserStats = async (uid) => {
+    try {
+      const userRef = doc(db, "users", uid);
+      const userSnap = await getDoc(userRef);
+
+      if (userSnap.exists()) {
+        setUserStats(userSnap.data());
+      }
+    } catch (error) {
+      console.error("Error fetching user stats:", error);
+    }
+  };
 
   // Set client-side state
   useEffect(() => {
@@ -169,11 +187,11 @@ export default function HomePage() {
     tl.fromTo(
       buttonsRef.current,
       { opacity: 0, y: 50 },
-      { 
-        opacity: 1, 
-        y: 0, 
-        duration: 0.7, 
-        stagger: 0.2, 
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        stagger: 0.2,
         ease: "elastic.out(1, 0.3)",
         onComplete: () => {
           // Add hover animations after initial animation
@@ -229,7 +247,7 @@ export default function HomePage() {
     sectionsRef.current.forEach((section, index) => {
       // Different animation for each section
       const direction = index % 2 === 0 ? -1 : 1;
-      
+
       // Backgrounds with gradient animations
       gsap.to(section.querySelector(".bg-gradient"), {
         backgroundPosition: "100% 100%",
@@ -240,12 +258,12 @@ export default function HomePage() {
           scrub: 2
         }
       });
-      
+
       // Text animations
       gsap.fromTo(
         section.querySelector("h2").children,
-        { 
-          opacity: 0, 
+        {
+          opacity: 0,
           y: 50 * direction,
           rotationX: 45
         },
@@ -263,13 +281,13 @@ export default function HomePage() {
           }
         }
       );
-      
+
       // Image/graphics animations
       if (section.querySelector(".feature-graphic")) {
         gsap.fromTo(
           section.querySelector(".feature-graphic"),
-          { 
-            opacity: 0, 
+          {
+            opacity: 0,
             scale: 0.8,
             rotation: -5 * direction
           },
@@ -352,6 +370,18 @@ export default function HomePage() {
     });
   };
 
+  const ProfileButton = () => {
+  return (
+    <div className="absolute top-4 left-4 z-50">
+      <a href="/profile">
+      <button className="bg-gradient-to-br from-purple-600 to-blue-500 w-8 h-8 md:w-12 md:h-12 rounded-full flex items-center justify-center text-1.5xl md:text-2xl text-white shadow-lg cursor-pointer hover:scale-105 transition-transform duration-300">
+        {userStats?.name?.charAt(0) || user?.email?.charAt(0) || "?"}
+      </button>
+      </a>
+    </div>
+  )
+}
+
   const LogoutButton = () => {
     const handleLogout = async () => {
       try {
@@ -384,10 +414,11 @@ export default function HomePage() {
           <ParticleBackground />
         </div>
       )}
-      
+
       {isClient && <FloatingLetters />}
 
       <section className="h-screen flex flex-col items-center justify-center text-center relative z-10">
+        <ProfileButton />
         <LogoutButton />
         <div className="hero-content">
           <h1 ref={titleRef} className="text-7xl font-extrabold drop-shadow-lg bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600 h-20">
@@ -416,7 +447,7 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-        
+
         {/* Scroll indicator */}
         <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center">
           <p className="text-sm mb-2 text-purple-300">Scroll to explore</p>
@@ -428,20 +459,20 @@ export default function HomePage() {
 
       {/* Scroll Sections with Advanced GSAP Animations */}
       {[
-        { 
-          text: "✏️ Learn to Write Kannada Letters!", 
+        {
+          text: "✏️ Learn to Write Kannada Letters!",
           bg: "from-indigo-900 via-purple-800 to-indigo-900",
           description: "Master Kannada script with our interactive writing exercises designed for beginners.",
           icon: "✏️"
         },
-        { 
-          text: "🔊 Match Kannada Letters with Pronunciation!", 
+        {
+          text: "🔊 Match Kannada Letters with Pronunciation!",
           bg: "from-blue-900 via-blue-800 to-blue-900",
           description: "Improve your listening skills and pronunciation with our audio matching game.",
           icon: "🔊"
         },
-        { 
-          text: "🎮 Improve Memory with Letter Matching!", 
+        {
+          text: "🎮 Improve Memory with Letter Matching!",
           bg: "from-green-900 via-green-800 to-green-900",
           description: "Challenge your memory while learning Kannada characters in our fun memory game.",
           icon: "🎮"
@@ -453,25 +484,25 @@ export default function HomePage() {
           className="min-h-screen flex items-center justify-center text-white text-center p-10 relative overflow-hidden"
         >
           {/* Animated gradient background */}
-          <div 
+          <div
             className={`bg-gradient absolute inset-0 bg-gradient-to-br ${item.bg} bg-size-200 z-0`}
             style={{ backgroundSize: "200% 200%", backgroundPosition: "0% 0%" }}
           />
-          
+
           <div className="relative z-10 max-w-4xl mx-auto grid md:grid-cols-2 gap-8 items-center">
             <div className={`text-left ${index % 2 !== 0 ? "md:order-2" : ""}`}>
               <h2 className="text-5xl font-bold mb-6">
                 {item.text}
               </h2>
               <p className="text-xl opacity-90 mb-8">{item.description}</p>
-              <button 
+              <button
                 className="px-6 py-3 bg-white text-purple-900 rounded-lg font-bold transform hover:scale-105 transition-all"
                 onClick={() => router.push(index === 0 ? "/learn" : index === 1 ? "/match" : "/memory")}
               >
                 Get Started
               </button>
             </div>
-            
+
             <div className={`feature-graphic flex justify-center ${index % 2 !== 0 ? "md:order-1" : ""}`}>
               <div className="w-64 h-64 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
                 <span className="text-8xl">{item.icon}</span>
@@ -490,7 +521,7 @@ export default function HomePage() {
           <p className="text-2xl text-purple-200 mb-12 max-w-2xl mx-auto">
             Join thousands of learners mastering Kannada through our interactive games and exercises. Perfect for beginners of all ages!
           </p>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
             {[
               { icon: "🚀", title: "Learn Fast", description: "Master the basics in just minutes a day with our proven learning method" },
@@ -504,31 +535,31 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-          
-          <button 
+
+          <button
             className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xl rounded-xl shadow-lg transform hover:scale-105 transition-all"
             onClick={() => {
               // Smooth scroll to top
-              gsap.to(window, {duration: 1.5, scrollTo: 0, ease: "power3.inOut"});
+              gsap.to(window, { duration: 1.5, scrollTo: 0, ease: "power3.inOut" });
             }}
           >
             Get Started Now
           </button>
         </div>
-        
+
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden">
           {[...Array(20)].map((_, i) => (
-            <div 
+            <div
               key={i}
               className="absolute w-24 h-24 bg-white/5 rounded-full"
-              // style={{
-              //   top: `${Math.random() * 100}%`,
-              //   left: `${Math.random() * 100}%`,
-              //   transform: `scale(${Math.random() * 3 + 0.5})`,
-              //   animationDuration: `${Math.random() * 20 + 10}s`,
-              //   animationDelay: `${Math.random() * 5}s`
-              // }}
+            // style={{
+            //   top: `${Math.random() * 100}%`,
+            //   left: `${Math.random() * 100}%`,
+            //   transform: `scale(${Math.random() * 3 + 0.5})`,
+            //   animationDuration: `${Math.random() * 20 + 10}s`,
+            //   animationDelay: `${Math.random() * 5}s`
+            // }}
             />
           ))}
         </div>
@@ -570,7 +601,7 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto">
           <div className="text-6xl mb-6">ಕನ್ನಡ</div>
           <p className="text-xl mb-8">© 2025 Kannada Learning Hub | Made with ❤️</p>
-          
+
           <div className="flex justify-center space-x-6 mb-8">
             {["About", "Contact", "Privacy", "Terms"].map((item, i) => (
               <a key={i} href="#" className="text-purple-300 hover:text-white transition-colors">
@@ -578,7 +609,7 @@ export default function HomePage() {
               </a>
             ))}
           </div>
-          
+
           <div className="text-sm text-purple-400">
             Learn Kannada anywhere, anytime. Perfect for beginners and language enthusiasts.
           </div>

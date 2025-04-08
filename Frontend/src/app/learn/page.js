@@ -37,6 +37,7 @@ export default function Learn() {
     }
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
+        console.log(user)
         setInitialLoading(false);
         fetchWrite2Level(user.uid); // Pass user's UID
       } else {
