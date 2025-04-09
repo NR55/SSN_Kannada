@@ -55,11 +55,16 @@ export default function Learn() {
     return () => unsubscribe();
   }, []);
 
-  // Calculate optimal font size for current letter
   useEffect(() => {
-    calculateOptimalFontSize();
+    const interval = setInterval(() => {
+      if (measureCanvasRef.current) {
+        calculateOptimalFontSize();
+        clearInterval(interval); // Stop polling once canvas is available
+      }
+    }, 100); // Check every 100ms
+    return () => clearInterval(interval);
   }, [currentIndex]);
-
+  
   const calculateOptimalFontSize = () => {
     if (!measureCanvasRef.current) return;
 
@@ -254,7 +259,7 @@ export default function Learn() {
         triggerConfetti();
 
         if (user) {
-          const newLevel = Math.min(49, Math.max(write2level, currentIndex + 2));
+          const newLevel = Math.min(50, Math.max(write2level, currentIndex + 2));
           if (newLevel > write2level) {
             await updateWrite2Level(user.uid, newLevel);
             setWrite2Level(newLevel);

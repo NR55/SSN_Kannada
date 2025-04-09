@@ -167,7 +167,7 @@ export default function ProfilePage() {
                             <div className="mt-4 grid grid-cols-3 gap-4">
                                 <div className="bg-purple-800/50 p-3 rounded-lg text-center">
                                     <p className="text-sm text-purple-300">Write2Level</p>
-                                    <p className="text-xl font-bold">{userStats?.write2level || 0}</p>
+                                    <p className="text-xl font-bold">{userStats?.write2level - 1 || 0}</p>
                                 </div>
                                 <div className="bg-purple-800/50 p-3 rounded-lg text-center">
                                     <p className="text-sm text-purple-300">Best Matching Game</p>
@@ -288,8 +288,8 @@ export default function ProfilePage() {
                                     {
                                         name: "Writing Pioneer",
                                         desc: "Complete all 49 levels in Write2Level",
-                                        unlocked: (userStats?.write2level || 0) == 49,
-                                        progress: Math.min(100, ((userStats?.write2level || 0) / 49) * 100)
+                                        unlocked: (userStats?.write2level - 1 || 0) == 49,
+                                        progress: Math.min(100, ((userStats?.write2level - 1 || 0) / 49) * 100)
                                     },
                                     {
                                         name: "Sound Explorer",
@@ -339,7 +339,7 @@ export default function ProfilePage() {
                             </h3>
                             <div className="bg-blue-900/60 px-4 py-2 rounded-lg mt-2 md:mt-0">
                                 <span className="text-blue-300">Current Level:</span>
-                                <span className="text-2xl font-bold ml-2">{userStats?.write2level || 0}</span>
+                                <span className="text-2xl font-bold ml-2">{userStats?.write2level - 1 || 0}</span>
                             </div>
                         </div>
 
@@ -347,7 +347,7 @@ export default function ProfilePage() {
                             <div className="absolute top-0 left-0 w-full h-2 bg-gray-700 rounded-full overflow-hidden">
                                 <div
                                     className="h-full bg-gradient-to-r from-blue-400 to-blue-600"
-                                    style={{ width: `${Math.min(100, ((userStats?.write2level || 0) / 49) * 100)}%` }}
+                                    style={{ width: `${Math.min(100, ((userStats?.write2level - 1 || 0) / 49) * 100)}%` }}
                                 ></div>
                             </div>
 
@@ -356,7 +356,7 @@ export default function ProfilePage() {
                                 {[1, 15, 40, 49].map((level, index) => (
                                     <div key={index} className="text-center">
                                         <div className={`w-12 h-12 rounded-full mx-auto flex items-center justify-center text-lg font-bold 
-                      ${(userStats?.write2level || 0) >= level ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-400'}`}>
+                      ${(userStats?.write2level - 1 || 0) >= level ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-400'}`}>
                                             {level}
                                         </div>
                                         <p className="mt-2 text-sm">
